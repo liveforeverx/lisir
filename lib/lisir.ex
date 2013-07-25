@@ -1,11 +1,11 @@
 defmodule Lisir do
 	def start do
 		IO.puts("Lisir - simple lisp interpreter (0.0.1) - type :q to exit")
-		pid = spawn(fn -> repl({[],[]}) end)
+		pid = spawn(fn -> repl end)
 		io(pid, 1)
 	end
 
-	def repl(env) do
+	def repl(env // {[],[]}) do
 		receive do
 			{from, :input, line, counter} ->
 				try do
