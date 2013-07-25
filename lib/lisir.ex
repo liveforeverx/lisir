@@ -9,7 +9,15 @@ defmodule Lisir do
 			":q\n" ->
 				:ok
 			line ->
-				case Eval.eval(String.rstrip(line, ?\n), env) do
+				 tree = case Parser.parse(String.rstrip(line, ?\n)) do
+					{"", tree} ->
+						tree
+					{_rem, tree} ->
+						# TODO
+						tree
+				end
+
+				case Eval.eval(tree, env) do
 					{nil, new_env} ->
 						repl(new_env)
 					{res, new_env} ->
@@ -21,9 +29,9 @@ defmodule Lisir do
 
 	# Convert a elixir term into a lisp readable string.
 	# eg.
-	# [:define, :x, [:lambda, [:x], [:*, :x, :x]]]
-	# => "(define x (lambda (x) (* x x)))"
-	def pp(terms) when is_list(terms) do
+	# [:define, :square, [:lambda, [:x], [:*, :x, :x]]]
+	# => "(define square (lambda (x) (* x x)))"
+	defp pp(terms) when is_list(terms) do
 		s = Enum.reduce(terms, "", fn
 				term, "" when is_list(term) -> pp(term)
 				term, ""  -> to_binary(term)
@@ -32,5 +40,5 @@ defmodule Lisir do
 			end)
 		"(" <> s <> ")"
 	end
-	def pp(terms), do: inspect(terms)
+	defp pp(terms), do: inspect(terms)
 end

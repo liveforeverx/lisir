@@ -1,36 +1,39 @@
 defmodule Parser do
+	@moduledoc """
+	Contains the parser for lisir.
+	"""
+
+	@doc """
+	Parses the given source code into a list of numbers and atoms ready to be
+	evaluated.
+	eg.
+	"(define square (lambda (x) (* x x)))"
+	=> [:define, :square, [:lambda, [:x], [:*, :x, :x]]]
+	"""
 	def parse(<<?(, r :: binary>>) do
 		do_parse(r, [], [])
 	end
 
 	def parse(<<?), _ :: binary>>) do
-		{:error, %b/unexpected ")"/}
-	end
-
-	def parse(s) when is_binary(s) do
-		{:ok, "", atom(binary_to_list(s))}
+		raise %b/unexpected ")"/
 	end
 
 	def parse(s) do
-		{:ok, "", s}
+		{"", atom(binary_to_list(s))}
 	end
 
 	defp do_parse(<<>>, _, _) do
-		{:error, %b/missing terminator ")"/}
+		raise %b/missing terminator ")"/
 	end
 
 	defp do_parse(<<?), r :: binary>>, t_acc, l_acc) do
-		{:ok, r, Enum.reverse(join(t_acc, l_acc))}
+		{r, Enum.reverse(join(t_acc, l_acc))}
 	end
 
 	defp do_parse(<<?(, r :: binary>>, t_acc, l_acc) do
 		new = join(t_acc, l_acc)
-		case do_parse(r, [], []) do
-			{:ok, rem, lst} ->
-				do_parse(rem, [], [lst | new])
-			{:error, reason} ->
-				{:error, reason}
-		end
+		{rem, lst} = do_parse(r, [], [])
+		do_parse(rem, [], [lst | new])
 	end
 
 	defp do_parse(<<? , r :: binary>>, t_acc, l_acc) do
