@@ -32,6 +32,14 @@ lisir(4)> (* x 2)
 lisir(5)> (define square (lambda (x) (* x x)))
 lisir(6)> (square 5)
 25
+lisir(7)> (define area (lambda (l w) (* l w)))
+lisir(8)> (area 3 5)
+15
+lisir(9)> ((lambda x (+ x 1)) 8)
+9
+lisir(10)> :q
+:ok
+
 ```
 
 ## License
