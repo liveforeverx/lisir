@@ -18,6 +18,7 @@ Install elixir, you can find how [here](http://elixir-lang.org/getting_started/1
 git clone https://github.com/mrshankly/lisir
 cd lisir
 iex -S mix
+Lisir.start
 ```
 
 ## Example
