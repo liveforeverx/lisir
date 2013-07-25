@@ -7,15 +7,70 @@ defmodule Eval do
   Evaluates the given tree in an environment. Returns a 2 element tuple,
   the first element is the result, the second is the new environment.
   """
-  def eval([:+  | l], e), do: {Lib.ladd(get_bindings(l, e)), e}
-  def eval([:-  | l], e), do: {Lib.lsub(get_bindings(l, e)), e}
-  def eval([:*  | l], e), do: {Lib.lmul(get_bindings(l, e)), e}
-  def eval([:/  | l], e), do: {Lib.ldiv(get_bindings(l, e)), e}
-  def eval([:=  | l], e), do: {Lib.equal(get_bindings(l, e)), e}
-  def eval([:>  | l], e), do: {Lib.gt(get_bindings(l, e)), e}
-  def eval([:<  | l], e), do: {Lib.lt(get_bindings(l, e)), e}
-  def eval([:>= | l], e), do: {Lib.ge(get_bindings(l, e)), e}
-  def eval([:<= | l], e), do: {Lib.le(get_bindings(l, e)), e}
+  def eval([:+ | l], env) do
+    res = get_bindings(l, env) |> Enum.reduce(0, fn(x, acc) -> x + acc end)
+    {res, env}
+  end
+
+  def eval([:- | l], env) do
+    [h | t] = get_bindings(l, env)
+    {Enum.reduce(t, h, fn(x, acc) -> acc - x end), env}
+  end
+
+  def eval([:* | l], env) do
+    res = get_bindings(l, env) |> Enum.reduce(1, fn(x, acc) -> x * acc end)
+    {res, env}
+  end
+
+  def eval([:/ | l], env) do
+    [h | t] = get_bindings(l, env)
+    {Enum.reduce(t, h, fn(x, acc) -> acc / x end), env}
+  end
+
+  def eval([:= | l], env) do
+    [h | t] = get_bindings(l, env)
+    {Enum.all?(t, fn(x) -> x === h end), env}
+  end
+
+  def eval([:> | l], env) do
+    [h | t] = get_bindings(l, env)
+    Enum.reduce(t, h, fn(x, last) ->
+      if last > x, do: x, else: throw({:gt, false})
+    end)
+    {true, env}
+  catch
+    {:gt, false} -> {false, env}
+  end
+
+  def eval([:>= | l], env) do
+    [h | t] = get_bindings(l, env)
+    Enum.reduce(t, h, fn(x, last) ->
+      if last >= x, do: x, else: throw({:gt, false})
+    end)
+    {true, env}
+  catch
+    {:gt, false} -> {false, env}
+  end
+
+  def eval([:< | l], env) do
+    [h | t] = get_bindings(l, env)
+    Enum.reduce(t, h, fn(x, last) ->
+      if last < x, do: x, else: throw({:gt, false})
+    end)
+    {true, env}
+  catch
+    {:gt, false} -> {false, env}
+  end
+
+  def eval([:<= | l], env) do
+    [h | t] = get_bindings(l, env)
+    Enum.reduce(t, h, fn(x, last) ->
+      if last <= x, do: x, else: throw({:gt, false})
+    end)
+    {true, env}
+  catch
+    {:gt, false} -> {false, env}
+  end
 
   def eval([:quote, exp], env), do: {exp, env}
 
