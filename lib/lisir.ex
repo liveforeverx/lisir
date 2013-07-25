@@ -1,14 +1,14 @@
 defmodule Lisir do
 	def start do
 		IO.puts("Lisir - simple lisp interpreter (0.0.1) - type :q to exit")
-		repl({[],[]}, 1)
+		pid = spawn(fn -> input_loop end)
+		wait_input(pid, {[],[]}, 1)
 	end
 
-	defp repl(env, count) do
-		case IO.gets("lisir(#{count})> ") do
-			":q\n" ->
-				:ok
-			line ->
+	defp wait_input(input_pid, env, counter) do
+		input_pid <- {self, :do_input, counter}
+		receive do
+			{:input, line} ->
 				try do
 					tree = case Parser.parse(String.rstrip(line, ?\n)) do
 						{"", tree} ->
@@ -17,18 +17,36 @@ defmodule Lisir do
 							# TODO
 							tree
 					end
-
 					case Eval.eval(tree, env) do
 						{nil, new_env} ->
-							repl(new_env, count + 1)
+							wait_input(input_pid, new_env, counter + 1)
 						{res, new_env} ->
 							IO.puts "#{pp(res)}"
-							repl(new_env, count + 1)
+							wait_input(input_pid, new_env, counter + 1)
 					end
 				rescue
 					exception ->
 						IO.puts "** #{exception.message}"
-						repl(env, count)
+						wait_input(input_pid, env, counter)
+				end
+			:exit ->
+				:ok
+		end
+	end
+
+	defp input_loop do
+		receive do
+			{from, :do_input, counter} ->
+				case IO.gets(:stdio, "lisir(#{counter})> ") do
+					":q\n" ->
+						from <- :exit
+					:eof ->
+						from <- :exit
+					{:error, _} ->
+						from <- :exit
+					data ->
+						from <- {:input, data}
+						input_loop
 				end
 		end
 	end
