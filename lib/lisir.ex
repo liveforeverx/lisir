@@ -1,11 +1,11 @@
 defmodule Lisir do
 	def start do
 		IO.puts("Lisir - simple lisp interpreter (0.0.1) - type :q to exit")
-		repl({[],[]})
+		repl({[],[]}, 1)
 	end
 
-	defp repl(env) do
-		case IO.gets("lisir> ") do
+	defp repl(env, count) do
+		case IO.gets("lisir(#{count})> ") do
 			":q\n" ->
 				:ok
 			line ->
@@ -19,10 +19,10 @@ defmodule Lisir do
 
 				case Eval.eval(tree, env) do
 					{nil, new_env} ->
-						repl(new_env)
+						repl(new_env, count + 1)
 					{res, new_env} ->
 						IO.puts "#{pp(res)}"
-						repl(new_env)
+						repl(new_env, count + 1)
 				end
 		end
 	end
