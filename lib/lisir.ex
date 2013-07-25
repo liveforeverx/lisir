@@ -1,11 +1,11 @@
 defmodule Lisir do
 	def start do
 		IO.puts("Lisir - simple lisp interpreter (0.0.1) - type :q to exit")
-		pid = spawn(fn -> do_loop({[],[]}) end)
+		pid = spawn(fn -> repl({[],[]}) end)
 		io(pid, 1)
 	end
 
-	def do_loop(env) do
+	def repl(env) do
 		receive do
 			{from, :input, line, counter} ->
 				try do
@@ -17,11 +17,11 @@ defmodule Lisir do
 					end
 					{result, new_env} = Eval.eval(tree, env)
 					from <- {:output, pp(result), counter + 1}
-					do_loop(new_env)
+					repl(new_env)
 				rescue
 					exception ->
 						from <- {:output, "** #{exception.message}", counter}
-						do_loop(env)
+						repl(env)
 				end
 			:exit ->
 				:ok
