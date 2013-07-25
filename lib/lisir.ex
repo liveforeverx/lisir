@@ -9,20 +9,26 @@ defmodule Lisir do
 			":q\n" ->
 				:ok
 			line ->
-				 tree = case Parser.parse(String.rstrip(line, ?\n)) do
-					{"", tree} ->
-						tree
-					{_rem, tree} ->
-						# TODO
-						tree
-				end
+				try do
+					tree = case Parser.parse(String.rstrip(line, ?\n)) do
+						{"", tree} ->
+							tree
+						{_rem, tree} ->
+							# TODO
+							tree
+					end
 
-				case Eval.eval(tree, env) do
-					{nil, new_env} ->
-						repl(new_env, count + 1)
-					{res, new_env} ->
-						IO.puts "#{pp(res)}"
-						repl(new_env, count + 1)
+					case Eval.eval(tree, env) do
+						{nil, new_env} ->
+							repl(new_env, count + 1)
+						{res, new_env} ->
+							IO.puts "#{pp(res)}"
+							repl(new_env, count + 1)
+					end
+				rescue
+					exception ->
+						IO.puts "** #{exception.message}"
+						repl(env, count)
 				end
 		end
 	end

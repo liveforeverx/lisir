@@ -4,8 +4,8 @@ defmodule Eval do
 	"""
 
 	@doc """
-	Evaluates the given tree. Returns a 2 element tuple, the first element is
-	the result, the second is the new enviroment.
+	Evaluates the given tree in an environment. Returns a 2 element tuple,
+	the first element is the result, the second is the new environment.
 	"""
 	def eval([:+  | l], e), do: {Lib.ladd(get_bindings(l, e)), e}
 	def eval([:-  | l], e), do: {Lib.lsub(get_bindings(l, e)), e}
@@ -38,7 +38,7 @@ defmodule Eval do
 	end
 
 	# Creates an elixir anonymous function that will evaluate `exps`. A new
-	# enviroment is created with the existing `env` as a parent.
+	# environment is created with the existing `env` as a parent.
 	def eval([:lambda, args, exps], env) do
 		{fn(params) -> eval(exps, new_env(args, params, env)) end, env}
 	end
@@ -52,6 +52,11 @@ defmodule Eval do
 		eval([:begin | rest], e)
 	end
 
+	def eval([], _) do
+		raise "expected a procedure"
+	end
+
+	# (proc exp) - lambdas basically
 	def eval(exps, env) when is_list(exps) do
 		[{fun, _} | params] = Enum.map(exps, fn(exp) -> eval(exp, env) end)
 		params = Enum.map(params, fn({p,_}) -> p end)
@@ -62,7 +67,10 @@ defmodule Eval do
 		end
 	end
 
+	# variable reference
 	def eval(a, env) when is_atom(a), do: {env_get!(env, a), env}
+
+	# constant
 	def eval(other, env), do: {other, env}
 
 	# Replace variables with their repective values
@@ -74,7 +82,7 @@ defmodule Eval do
 		|> Enum.reverse
 	end
 
-	# Create a new enviroment, used on lambdas, an optional parent can be given
+	# Create a new environment, used on lambdas, an optional parent can be given
 	# as an argument.
 	defp new_env(keys, vals, parent) when is_list(keys) do
 		kl = length(keys)
@@ -82,7 +90,7 @@ defmodule Eval do
 		if kl === vl do
 			{Enum.zip(keys, vals), parent}
 		else
-			raise "expecting #{kl} arguments, got #{vl}"
+			raise "expected #{kl} arguments, got #{vl}"
 		end
 	end
 
@@ -91,11 +99,11 @@ defmodule Eval do
 		if vl === 1 do
 			{[{key, hd(val)}], parent}
 		else
-			raise "expecting 1 argument, got #{vl}"
+			raise "expected 1 argument, got #{vl}"
 		end
 	end
 
-	# Get the value of key `k` in the enviroment, if the nothing is found
+	# Get the value of key `k` in the environment, if the nothing is found
 	# an exception is raised.
 	defp env_get!({e, p}, k) do
 		case e[k] do
@@ -109,7 +117,7 @@ defmodule Eval do
 		end
 	end
 
-	# Create a copy of enviroment `e` with a new pair `k: v`.
+	# Create a copy of environment `e` with a new pair `k: v`.
 	defp env_put({e, p}, k, v) do
 		{Keyword.put(e, k, v), p}
 	end
