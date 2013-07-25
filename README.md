@@ -1,5 +1,7 @@
 # Lisir
 
+[![Build Status](https://travis-ci.org/mrshankly/lisir.png)](https://travis-ci.org/mrshankly/lisir)
+
 Lisir is a simple lisp interpreter based on [Peter Norvig's Lispy](http://norvig.com/lispy.html).
 
 It currently supports the following forms: `quote`, `define`, `set!`, `if`, `lambda` and `begin`.
