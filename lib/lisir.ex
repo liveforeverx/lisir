@@ -7,7 +7,7 @@ defmodule Lisir do
 
 	def repl(env // {[],[]}) do
 		receive do
-			{from, :input, line, counter} ->
+			{from, {:input, line, counter}} ->
 				try do
 					tree = case Parser.parse(String.rstrip(line, ?\n)) do
 						{"", tree} ->
@@ -37,7 +37,7 @@ defmodule Lisir do
 			{:error, _} ->
 				repl_pid <- :exit
 			data ->
-				repl_pid <- {self, :input, data, counter}
+				repl_pid <- {self, {:input, data, counter}}
 				receive do
 					{:output, "nil", counter} ->
 						io(repl_pid, counter)

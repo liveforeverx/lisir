@@ -11,15 +11,20 @@ defmodule Lisir.Case do
 	end
 
 	@doc """
-	Starts an test repl, feeds it the provided input and returns the output.
+	Starts a new process of a test repl.
 	"""
-	def lisir(input) do
-		ExUnit.CaptureIO.capture_io([input: input, capture_prompt: false], fn ->
-			Lisir.start end) |> strip_output
+	def start_lisir do
+		spawn(fn -> Lisir.repl end)
+		|> Process.register(:test_repl)
 	end
 
-	defp strip_output(s) do
-		Regex.replace(%r/\A.+?$/ms, s, "")
-		|> String.strip
+	@doc """
+	Feeds the input to a running repl and returns the output.
+	"""
+	def lisir(input) do
+		:test_repl <- {self, {:input, input, 1}}
+		receive do
+			{:output, val, _} -> val
+		end
 	end
 end

@@ -3,6 +3,8 @@ Code.require_file "test_helper.exs", __DIR__
 defmodule LisirTest do
   use Lisir.Case
 
+  start_lisir
+
   test "sum" do
     assert lisir("(+ 1 2)") == "3"
   end
@@ -23,16 +25,14 @@ defmodule LisirTest do
     assert lisir("(= 2 2 2)") == "true"
   end
 
-  test "simple begin" do
-    assert lisir("(begin (+ 1 1))") == "2"
-  end
-
   test "define" do
-    assert lisir("(begin (define x 1) x)") == "1"
+    assert(lisir("(define x 1)") == "nil") &&
+    assert(lisir("x") == "1")
   end
 
   test "set!" do
-    assert lisir("(begin (define x 1) (set! x 2) x)") == "2"
+    assert(lisir("(set! x 2)") == "nil") &&
+    assert(lisir("x") == "2")
   end
 
   test "if true" do
@@ -47,12 +47,20 @@ defmodule LisirTest do
     assert lisir("(quote (+ 1 1))") == "(+ 1 1)"
   end
 
+  test "simple begin" do
+    assert lisir("(begin (+ 1 1))") == "2"
+  end
+
+  test "complex begin" do
+    assert lisir("(begin (define y 1) (set! y 2) y)") == "2"
+  end
 
   test "lambda" do
-    assert lisir("((lambda (x) (+ x 1)) 2)") == "3"
+    assert lisir("((lambda (z) (+ z 1)) 2)") == "3"
   end
 
   test "define lambda" do
-    assert lisir("(begin (define square (lambda (x) (* x x))) (square 5))") == "25"
+    assert(lisir("(define area (lambda (l w) (* l w)))") == "nil") &&
+    assert(lisir("(area 3 5)") == "15")
   end
 end
