@@ -38,8 +38,7 @@ lisir(8)> (area 3 5)
 lisir(9)> ((lambda x (+ x 1)) 8)
 9
 lisir(10)> :q
-:ok
-
+:exit
 ```
 
 ## License
