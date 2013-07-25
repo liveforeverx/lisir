@@ -44,4 +44,4 @@ lisir(10)> :q
 
 ## License
 
-All files under this repository fall under the MIT License (see the file LICENSE)
+All files under this repository fall under the MIT License (see the file LICENSE).
