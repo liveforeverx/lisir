@@ -43,9 +43,14 @@ defmodule Eval do
 		{fn(params) -> eval(exps, new_env(args, params, env)) end, env}
 	end
 
-	#def eval([:begin | _exps], env) do
-	#	{:todo, env}
-	#end
+	def eval([:begin, exp], env) do
+		eval(exp, env)
+	end
+
+	def eval([:begin, exp | rest], env) do
+		{_, e} = eval(exp, env)
+		eval([:begin | rest], e)
+	end
 
 	def eval(exps, env) when is_list(exps) do
 		[{fun, _} | params] = Enum.map(exps, fn(exp) -> eval(exp, env) end)
