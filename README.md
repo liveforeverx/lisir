@@ -24,23 +24,26 @@ Lisir.start
 ## Example
 
 ```
-Lisir - simple lisp interpreter (0.0.1) - type :q to exit
-lisir(1)> (+ 1 2 3)
+Lisir - (0.0.1) - type (q) to exit
+lir(1)> (+ 1 2 3)
 6
-lisir(2)> (> 5 2)
-true
-lisir(3)> (define x 10)
-lisir(4)> (* x 2)
+lir(2)> (> 5 2) (- 5 2)
+#t
+3
+lir(3)> (define x 10)
+lir(4)> (* x 2)
 20
-lisir(5)> (define square (lambda (x) (* x x)))
-lisir(6)> (square 5)
+lir(5)> (define square
+...(5)>   (lambda (x) (* x x)))
+lir(6)> (square 5)
 25
-lisir(7)> (define area (lambda (l w) (* l w)))
-lisir(8)> (area 3 5)
+lir(7)> (define area
+...(7)>   (lambda (l w) (* l w)))
+lir(8)> (area 3 5)
 15
-lisir(9)> ((lambda x (+ x 1)) 8)
+lir(9)> ((lambda x (+ x 1)) 8)
 9
-lisir(10)> :q
+lir(10)> (q)
 :exit
 ```
 
