@@ -4,48 +4,88 @@ defmodule Parser do
   """
 
   @doc """
-  Parses the given source code into a list of numbers and atoms ready to be
-  evaluated.
+  Turns the given expression into a list of tokens.
   eg.
-  "(define square (lambda (x) (* x x)))"
-  => [:define, :square, [:lambda, [:x], [:*, :x, :x]]]
+  "(define x (* 2 3))" => ['(', 'define', 'x', '(', '*', '2', '3', ')', ')']
   """
-  def parse(<<?(, r :: binary>>) do
-    do_parse(r, [], [])
+  def tokenize(s) do
+    tokenize(s, [], [])
   end
 
-  def parse(<<?), _ :: binary>>) do
-    raise %b/unexpected ")"/
+  defp tokenize("", t_acc, acc) do
+    unless t_acc === [] do
+      Enum.reverse([t_acc | acc])
+    else
+      Enum.reverse(acc)
+    end
   end
 
-  def parse(s) do
-    {"", atom(binary_to_list(s))}
+  defp tokenize(<<?(, r :: binary>>, t_acc, acc) do
+    tokenize(r, t_acc, ['(' | acc])
   end
 
-  defp do_parse(<<>>, _, _) do
-    raise %b/missing terminator ")"/
+  defp tokenize(<<?), r :: binary>>, t_acc, acc) do
+    unless t_acc === [] do
+      tokenize(r, [], [')', Enum.reverse(t_acc) | acc])
+    else
+      tokenize(r, [], [')' | acc])
+    end
   end
 
-  defp do_parse(<<?), r :: binary>>, t_acc, l_acc) do
-    {r, Enum.reverse(join(t_acc, l_acc))}
+  defp tokenize(<<32, r :: binary>>, t_acc, acc) do
+    unless t_acc === [] do
+      tokenize(r, [], [Enum.reverse(t_acc) | acc])
+    else
+      tokenize(r, [], acc)
+    end
   end
 
-  defp do_parse(<<?(, r :: binary>>, t_acc, l_acc) do
-    new = join(t_acc, l_acc)
-    {rem, lst} = do_parse(r, [], [])
-    do_parse(rem, [], [lst | new])
+  defp tokenize(<<c, r :: binary>>, t_acc, acc) do
+    tokenize(r, [c | t_acc], acc)
   end
 
-  defp do_parse(<<? , r :: binary>>, t_acc, l_acc) do
-    do_parse(r, [], join(t_acc, l_acc))
+  @doc """
+  Parses the given list of tokens into a list of trees to be evaluated.
+  eg.
+  "(define square (lambda (x) (* x x))) (* 2 2)"
+  => [[:define, :square, [:lambda, [:x], [:*, :x, :x]]], [:*, 2, 2]]
+  """
+  def parse(l) do
+    parse(l, 0, [])
   end
 
-  defp do_parse(<<c, r :: binary>>, t_acc, l_acc) do
-    do_parse(r, [c | t_acc], l_acc)
+  defp parse([], count, acc) do
+    case count do
+      0 -> Enum.reverse(acc)
+      _ -> raise %b/expression not balanced, missing parentheses/
+    end
   end
 
-  defp join([], lst), do: lst
-  defp join(tokens, lst), do: [atom(Enum.reverse(tokens)) | lst]
+  defp parse(['(' | r], count, acc) do
+    {rem, tree} = do_inner(r, [])
+    parse(rem, count, [tree | acc])
+  end
+
+  defp parse([')' | r], count, acc) do
+    parse(r, count - 1, acc)
+  end
+
+  defp parse([t | r], count, acc) do
+    parse(r, count, [atom(t) | acc])
+  end
+
+  defp do_inner([')' | r], acc) do
+    {r, Enum.reverse(acc)}
+  end
+
+  defp do_inner(['(' | r], acc) do
+    {rem, tree} = do_inner(r, [])
+    do_inner(rem, [tree | acc])
+  end
+
+  defp do_inner([t | r], acc) do
+    do_inner(r, [atom(t) | acc])
+  end
 
   # Numbers into numbers, anything else is an atom.
   defp atom(token) do

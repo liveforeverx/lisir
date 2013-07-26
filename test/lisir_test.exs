@@ -18,20 +18,20 @@ defmodule LisirTest do
   end
 
   test "comparison" do
-    assert lisir("(< 1 2 3)") == "true"
+    assert lisir("(< 1 2 3)") == "#t"
   end
 
   test "equal" do
-    assert lisir("(= 2 2 2)") == "true"
+    assert lisir("(= 2 2 2)") == "#t"
   end
 
   test "define" do
-    assert(lisir("(define x 1)") == "nil") &&
+    assert(lisir("(define x 1)") == "") &&
     assert(lisir("x") == "1")
   end
 
   test "set!" do
-    assert(lisir("(set! x 2)") == "nil") &&
+    assert(lisir("(set! x 2)") == "") &&
     assert(lisir("x") == "2")
   end
 
@@ -60,7 +60,11 @@ defmodule LisirTest do
   end
 
   test "define lambda" do
-    assert(lisir("(define area (lambda (l w) (* l w)))") == "nil") &&
+    assert(lisir("(define area (lambda (l w) (* l w)))") == "") &&
     assert(lisir("(area 3 5)") == "15")
+  end
+
+  test "multiple inputs per line" do
+    assert(lisir("(* 2 2) (+ 8 8) (> 1 2)") == "4\n16\n#f")
   end
 end

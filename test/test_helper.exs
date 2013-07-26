@@ -24,7 +24,8 @@ defmodule Lisir.Case do
   def lisir(input) do
     :test_repl <- {self, {:input, input, 1}}
     receive do
-      {:output, val, _} -> val
+      {:output, e, _} when is_binary(e) -> e
+      {:output, r, _} -> Enum.map_join(r, "\n", Lisir.pp(&1))
     end
   end
 end

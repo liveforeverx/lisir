@@ -9,9 +9,11 @@ defmodule Lisir do
     receive do
       {from, {:input, line, counter}} ->
         try do
-          {_, tree} = Parser.parse(String.rstrip(line, ?\n))
-          {result, new_env} = Eval.eval(tree, env)
-          from <- {:output, pp(result), counter + 1}
+          {r, new_env} = Parser.tokenize(line)
+          |> Parser.parse
+          |> Enum.map_reduce(env, Eval.eval(&1, &2))
+
+          from <- {:output, r, counter + 1}
           repl(new_env)
         rescue
           exception ->
@@ -32,29 +34,40 @@ defmodule Lisir do
       {:error, _} ->
         repl_pid <- :exit
       data ->
-        repl_pid <- {self, {:input, data, counter}}
+        repl_pid <- {self, {:input, String.rstrip(data, ?\n), counter}}
         receive do
-          {:output, "nil", counter} ->
-            io(repl_pid, counter)
-          {:output, val, counter} ->
-            IO.puts "#{val}"
-            io(repl_pid, counter)
+          {:output, e, ^counter} -> IO.puts(e)
+          {:output, r, counter} ->
+            Enum.each(r, fn
+                           x when x !== nil -> IO.puts("#{pp x}")
+                           _ -> :ok
+                         end)
         end
+        io(repl_pid, counter)
     end
   end
 
-  # Convert a elixir term into a lisp readable string.
-  # eg.
-  # [:define, :square, [:lambda, [:x], [:*, :x, :x]]]
-  # => "(define square (lambda (x) (* x x)))"
-  defp pp(terms) when is_list(terms) do
+  @doc """
+  Convert a elixir term into a lisp readable string.
+  eg.
+  [:define, :square, [:lambda, [:x], [:*, :x, :x]]]
+  => "(define square (lambda (x) (* x x)))"
+  """
+  def pp(terms) when is_list(terms) do
     s = Enum.reduce(terms, "", fn
         term, "" when is_list(term) -> pp(term)
-        term, ""  -> to_binary(term)
+        term, ""  -> pp(term)
         term, acc when is_list(term) -> acc <> " " <> pp(term)
-        term, acc -> acc <> " " <> to_binary(term)
+        term, acc -> acc <> " " <> pp(term)
       end)
     "(" <> s <> ")"
   end
-  defp pp(terms), do: inspect(terms)
+
+  def pp(terms) do
+    case terms do
+      true  -> "#t"
+      false -> "#f"
+      other -> to_binary(other)
+    end
+  end
 end
