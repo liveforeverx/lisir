@@ -14,12 +14,13 @@ Lisir does very little to detect and report errors.
 
 Install elixir, you can find how [here](http://elixir-lang.org/getting_started/1.html).
 
-```
-git clone https://github.com/mrshankly/lisir
-cd lisir
-iex -S mix
-Lisir.start
-```
+`$ git clone https://github.com/mrshankly/lisir`
+
+`$ cd lisir`
+
+`$ iex -S mix`
+
+`iex(1)> Lisir.start`
 
 ## Example
 
