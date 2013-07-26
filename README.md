@@ -24,29 +24,7 @@ Install elixir, you can find how [here](http://elixir-lang.org/getting_started/1
 
 ## Example
 
-```
-Lisir - (0.0.1) - type (q) to exit
-lir(1)> (+ 1 2 3)
-6
-lir(2)> (> 5 2) (- 5 2)
-#t
-3
-lir(3)> (define x 10)
-lir(4)> (* x 2)
-20
-lir(5)> (define square
-...(5)>   (lambda (x) (* x x)))
-lir(6)> (square 5)
-25
-lir(7)> (define area
-...(7)>   (lambda (l w) (* l w)))
-lir(8)> (area 3 5)
-15
-lir(9)> ((lambda x (+ x 1)) 8)
-9
-lir(10)> (q)
-:exit
-```
+![example](https://raw.github.com/mrshankly/lisir/master/img/example.png)
 
 ## License
 
