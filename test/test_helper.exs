@@ -14,7 +14,7 @@ defmodule Lisir.Case do
   Starts a new process of a test repl.
   """
   def start_lisir do
-    spawn(fn -> Lisir.repl end)
+    spawn(fn -> Lisir.repl({[],[]}, "") end)
     |> Process.register(:test_repl)
   end
 
@@ -22,10 +22,11 @@ defmodule Lisir.Case do
   Feeds the input to a running repl and returns the output.
   """
   def lisir(input) do
-    :test_repl <- {self, {:input, input, 1}}
+    :test_repl <- {self, {:input, input}}
     receive do
-      {:output, e, _} when is_binary(e) -> e
-      {:output, r, _} -> Enum.map_join(r, "\n", Lisir.pp(&1))
+      :do_input -> ""
+      {:output, e} when is_binary(e) -> e
+      {:output, r} -> Enum.map_join(r, "\n", Lisir.pp(&1))
     end
   end
 end

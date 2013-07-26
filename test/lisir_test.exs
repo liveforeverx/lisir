@@ -67,4 +67,10 @@ defmodule LisirTest do
   test "multiple inputs per line" do
     assert(lisir("(* 2 2) (+ 8 8) (> 1 2)") == "4\n16\n#f")
   end
+
+  test "multiline input" do
+    assert(lisir("(define square") == "") &&
+    assert(lisir("  (lambda (x) (* x x)))") == "") &&
+    assert(lisir("(square 5)") == "25")
+  end
 end

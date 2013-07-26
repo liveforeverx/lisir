@@ -12,19 +12,19 @@ defmodule Parser do
     tokenize(s, [], [])
   end
 
-  defp tokenize("", t_acc, acc) do
+  def tokenize("", t_acc, acc) do
     unless t_acc === [] do
-      Enum.reverse([t_acc | acc])
+      Enum.reverse([Enum.reverse(t_acc) | acc])
     else
       Enum.reverse(acc)
     end
   end
 
-  defp tokenize(<<?(, r :: binary>>, t_acc, acc) do
+  def tokenize(<<?(, r :: binary>>, t_acc, acc) do
     tokenize(r, t_acc, ['(' | acc])
   end
 
-  defp tokenize(<<?), r :: binary>>, t_acc, acc) do
+  def tokenize(<<?), r :: binary>>, t_acc, acc) do
     unless t_acc === [] do
       tokenize(r, [], [')', Enum.reverse(t_acc) | acc])
     else
@@ -32,7 +32,7 @@ defmodule Parser do
     end
   end
 
-  defp tokenize(<<32, r :: binary>>, t_acc, acc) do
+  def tokenize(<<32, r :: binary>>, t_acc, acc) do
     unless t_acc === [] do
       tokenize(r, [], [Enum.reverse(t_acc) | acc])
     else
@@ -40,7 +40,7 @@ defmodule Parser do
     end
   end
 
-  defp tokenize(<<c, r :: binary>>, t_acc, acc) do
+  def tokenize(<<c, r :: binary>>, t_acc, acc) do
     tokenize(r, [c | t_acc], acc)
   end
 
@@ -51,14 +51,14 @@ defmodule Parser do
   => [[:define, :square, [:lambda, [:x], [:*, :x, :x]]], [:*, 2, 2]]
   """
   def parse(l) do
-    parse(l, 0, [])
+    case l do
+      [')'] -> raise %b/unexpected ")"/
+      other -> parse(other, 0, [])
+    end
   end
 
-  defp parse([], count, acc) do
-    case count do
-      0 -> Enum.reverse(acc)
-      _ -> raise %b/expression not balanced, missing parentheses/
-    end
+  defp parse([], 0, acc) do
+    Enum.reverse(acc)
   end
 
   defp parse(['(' | r], count, acc) do
@@ -72,6 +72,10 @@ defmodule Parser do
 
   defp parse([t | r], count, acc) do
     parse(r, count, [atom(t) | acc])
+  end
+
+  defp do_inner([], _acc) do
+    throw :incomplete
   end
 
   defp do_inner([')' | r], acc) do
