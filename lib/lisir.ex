@@ -9,12 +9,7 @@ defmodule Lisir do
     receive do
       {from, {:input, line, counter}} ->
         try do
-          tree = case Parser.parse(String.rstrip(line, ?\n)) do
-            {"", tree} ->
-              tree
-            {_rem, tree} ->
-              tree
-          end
+          {_, tree} = Parser.parse(String.rstrip(line, ?\n))
           {result, new_env} = Eval.eval(tree, env)
           from <- {:output, pp(result), counter + 1}
           repl(new_env)
