@@ -30,9 +30,14 @@ defmodule LisirTest do
     assert(lisir("x") == "1")
   end
 
-  test "set!" do
-    assert(lisir("(set! x 2)") == "") &&
-    assert(lisir("x") == "2")
+  test "define set!" do
+    assert(lisir("(define y 1)") == "") &&
+    assert(lisir("(set! y 2)") == "") &&
+    assert(lisir("y") == "2")
+  end
+
+  test "undefine set!" do
+    assert(lisir("(set! z 2)") == "** z undefined")
   end
 
   test "if true" do
@@ -62,6 +67,14 @@ defmodule LisirTest do
   test "define lambda" do
     assert(lisir("(define area (lambda (l w) (* l w)))") == "") &&
     assert(lisir("(area 3 5)") == "15")
+  end
+
+  test "lambda complex" do
+    assert(lisir("(define make_add") == "") &&
+    assert(lisir("    (lambda (amount)") == "") &&
+    assert(lisir("        (lambda (number) (+ number amount))))") == "") &&
+    assert(lisir("(define add_five (make_add 5))") == "") &&
+    assert(lisir("(add_five 2)") == "7")
   end
 
   test "multiple inputs per line" do
