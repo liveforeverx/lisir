@@ -116,7 +116,8 @@ defmodule Eval do
     [{fun, _} | params] = Enum.map(exps, fn(exp) -> eval(exp, env) end)
     params = Enum.map(params, fn({p,_}) -> p end)
     if is_function(fun) do
-      fun.(params)
+      {res, _} = fun.(params)
+      {res, env}
     else
       raise "#{fun} is not a procedure"
     end
