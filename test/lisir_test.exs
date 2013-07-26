@@ -37,7 +37,7 @@ defmodule LisirTest do
   end
 
   test "undefine set!" do
-    assert(lisir("(set! z 2)") == "** z undefined")
+    assert(lisir("(set! z 2)") == "** \"z\" undefined")
   end
 
   test "if true" do
@@ -83,7 +83,7 @@ defmodule LisirTest do
 
   test "multiline input" do
     assert(lisir("(define square") == "") &&
-    assert(lisir("  (lambda (x) (* x x)))") == "") &&
+    assert(lisir("    (lambda (x) (* x x)))") == "") &&
     assert(lisir("(square 5)") == "25")
   end
 end

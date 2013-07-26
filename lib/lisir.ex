@@ -5,7 +5,7 @@ defmodule Lisir do
   Start lisir repl.
   """
   def start do
-    IO.puts("Lisir (0.0.1) - type (q) to exit")
+    IO.puts("Lisir (0.0.1) - type (q) to exit\n")
     pid = spawn(fn -> repl({[],[]}, "") end)
     io(pid, 1, "lir")
   end
