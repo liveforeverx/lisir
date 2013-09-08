@@ -52,7 +52,7 @@ defmodule Parser do
   """
   def parse(l) do
     case l do
-      [')'] -> raise %b/unexpected ")"/
+      [')'] -> raise %s/unexpected ")"/
       other -> parse(other, 0, [])
     end
   end

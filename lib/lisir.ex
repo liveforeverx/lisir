@@ -90,7 +90,7 @@ defmodule Lisir do
     case terms do
       true  -> "#t"
       false -> "#f"
-      other -> to_binary(other)
+      other -> to_string(other)
     end
   end
 end

@@ -119,7 +119,7 @@ defmodule Eval do
       {res, _} = fun.(params)
       {res, env}
     else
-      raise %b/"#{fun}" is not a procedure/
+      raise %s/"#{fun}" is not a procedure/
     end
   end
 
@@ -165,7 +165,7 @@ defmodule Eval do
     case e[k] do
       nil ->
         case p do
-          [] -> raise %b/"#{k}" undefined/
+          [] -> raise %s/"#{k}" undefined/
           _  -> env_get!(p, k)
         end
       val ->
