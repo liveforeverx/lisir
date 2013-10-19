@@ -20,7 +20,7 @@ defmodule Lisir do
         try do
           {r, new_env} = Parser.tokenize(code)
           |> Parser.parse
-          |> Enum.map_reduce(env, Eval.eval(&1, &2))
+          |> Enum.map_reduce(env, &Eval.eval/2)
 
           from <- {:output, r}
           repl(new_env, "")

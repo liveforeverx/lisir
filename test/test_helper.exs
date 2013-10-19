@@ -26,7 +26,7 @@ defmodule Lisir.Case do
     receive do
       :do_input -> ""
       {:output, e} when is_binary(e) -> e
-      {:output, r} -> Enum.map_join(r, "\n", Lisir.pp(&1))
+      {:output, r} -> Enum.map_join(r, "\n", &Lisir.pp/1)
     end
   end
 end
